@@ -40,6 +40,7 @@
     "name": "Multi-purpose tag",
     "price": "$2",
     "description": "Amazing tag to rep your gear.",
+    "condition": "NEW",
     "status": "Available",
     "images": [
       "images/Tag-Black-Green.jpg"
