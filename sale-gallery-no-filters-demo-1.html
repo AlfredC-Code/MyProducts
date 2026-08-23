@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A simple gallery of items for sale.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Items for Sale</title>
+  <style>:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #16181d;
+  --muted: #6c7280;
+  --border: #e4e7ec;
+  --soft: #eef1f5;
+  --shadow: 0 16px 40px rgba(26, 32, 44, 0.08);
+  --radius: 22px;
+  --radius-sm: 14px;
+  --max: 1180px;
+  --available: #137a4b;
+  --available-bg: #e8f6ef;
+  --pending: #9a6500;
+  --pending-bg: #fff4d8;
+  --sold: #8a3345;
+  --sold-bg: #fbeaec;
+  --active-text: #ffffff;
+  --floating-control: rgba(255,255,255,.92);
+  --floating-nav: rgba(255,255,255,.9);
+  --focus-ring: rgba(22, 24, 29, .18);
+}
+
+/* THEME CHANGE: dark-mode values only; light mode above is unchanged. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #101216;
+  --surface: #191c22;
+  --text: #f2f4f7;
+  --muted: #aab1bd;
+  --border: #2d323b;
+  --soft: #232831;
+  --shadow: 0 16px 40px rgba(0, 0, 0, .34);
+  --available: #74d8a9;
+  --available-bg: #173b2d;
+  --pending: #ffd36b;
+  --pending-bg: #493714;
+  --sold: #ff9aad;
+  --sold-bg: #48232c;
+  --active-text: #101216;
+  --floating-control: rgba(31,35,42,.94);
+  --floating-nav: rgba(31,35,42,.92);
+  --focus-ring: rgba(242, 244, 247, .24);
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+button, input { font: inherit; }
+
+button { -webkit-tap-highlight-color: transparent; }
+
+img { display: block; max-width: 100%; }
+
+.shell {
+  width: min(calc(100% - 32px), var(--max));
+  margin-inline: auto;
+}
+
+.site-header {
+  padding: 56px 0 28px;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: end;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 5vw, 4.3rem);
+  letter-spacing: -.055em;
+  line-height: .98;
+}
+
+.subtitle {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.header-meta {
+  color: var(--muted);
+  font-size: .95rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* THEME CHANGE: compact control added beside the item count. */
+.theme-toggle {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--soft);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 22px 0 28px;
+  border-top: 1px solid var(--border);
+}
+
+.search-wrap input {
+  width: min(280px, 42vw);
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+
+.search-wrap input:focus,
+.card-button:focus-visible,
+.icon-btn:focus-visible,
+.nav-btn:focus-visible,
+.thumb-btn:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  padding-bottom: 52px;
+}
+
+.product-card {
+  min-width: 0;
+}
+
+.card-button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+}
+
+.card-image {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  background: var(--soft);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .28s ease;
+}
+
+.card-button:hover .card-image img {
+  transform: scale(1.018);
+}
+
+.photo-count {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(18, 20, 24, .78);
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.card-content {
+  padding: 14px 3px 6px;
+}
+
+.card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 1.08rem;
+  letter-spacing: -.02em;
+}
+
+.price {
+  margin: 0;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.card-description {
+  margin: 8px 0 10px;
+  color: var(--muted);
+  font-size: .92rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 10px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.status-available {
+  color: var(--available);
+  background: var(--available-bg);
+}
+
+.status-pending {
+  color: var(--pending);
+  background: var(--pending-bg);
+}
+
+.status-sold {
+  color: var(--sold);
+  background: var(--sold-bg);
+}
+
+.empty-state {
+  padding: 60px 20px 90px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-state h2 {
+  margin: 0 0 6px;
+  color: var(--text);
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  padding: 26px 0 44px;
+  font-size: .9rem;
+}
+
+.product-dialog {
+  width: min(1120px, calc(100% - 28px));
+  border: 0;
+  border-radius: 26px;
+  padding: 0;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  max-height: calc(100% - 28px);
+}
+
+.product-dialog::backdrop {
+  background: rgba(12, 14, 18, .62);
+  backdrop-filter: blur(6px);
+}
+
+.dialog-shell {
+  position: relative;
+  padding: 22px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--floating-control);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.dialog-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  gap: 28px;
+}
+
+.viewer {
+  min-width: 0;
+}
+
+.main-image-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--soft);
+  aspect-ratio: 4 / 3;
+}
+
+.main-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--floating-nav);
+  color: var(--text);
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(0,0,0,.12);
+}
+
+.nav-prev { left: 14px; }
+.nav-next { right: 14px; }
+
+.thumbs {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+  overflow-x: auto;
+}
+
+.thumb-btn {
+  flex: 0 0 82px;
+  width: 82px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--soft);
+  cursor: pointer;
+}
+
+.thumb-btn.active {
+  border-color: var(--text);
+}
+
+.thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-info {
+  padding: 52px 6px 16px 0;
+}
+
+.product-title-row {
+  display: grid;
+  gap: 18px;
+}
+
+.product-title-row h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -.04em;
+  line-height: 1.05;
+}
+
+.dialog-price {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 850;
+}
+
+.dialog-description {
+  margin: 22px 0;
+  color: var(--muted);
+  font-size: 1rem;
+  white-space: pre-line;
+}
+
+.details-list {
+  margin: 0;
+  border-top: 1px solid var(--border);
+}
+
+.details-list > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.details-list dt {
+  color: var(--muted);
+}
+
+.details-list dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 880px) {
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dialog-grid { grid-template-columns: 1fr; }
+  .product-info { padding: 0 4px 6px; }
+}
+
+@media (max-width: 640px) {
+  .shell { width: min(calc(100% - 22px), var(--max)); }
+  .site-header { padding-top: 34px; }
+  .header-inner { align-items: start; flex-direction: column; }
+  .header-meta { width: 100%; justify-content: space-between; }
+  .toolbar { align-items: stretch; flex-direction: column; }
+  .search-wrap input { width: 100%; }
+  .gallery { grid-template-columns: 1fr; gap: 28px; }
+  .dialog-shell { padding: 12px; }
+  .product-dialog { width: calc(100% - 14px); max-height: calc(100% - 14px); border-radius: 20px; }
+  .close-btn { top: 20px; right: 20px; }
+  .main-image-wrap { border-radius: 14px; }
+  .product-info { padding: 8px 4px 8px; }
+  .nav-btn { width: 42px; height: 42px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <div>
+        <p class="eyebrow">PRIVATE SALE GALLERY</p>
+        <h1>Items for Sale</h1>
+        <p class="subtitle">A simple collection of items currently available.</p>
+      </div>
+      <div class="header-meta" aria-label="Gallery status and appearance">
+        <span id="itemCount">Loading…</span>
+        <!-- THEME CHANGE: light/dark mode toggle -->
+        <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+          <span id="themeIcon" aria-hidden="true">☾</span>
+          <span id="themeLabel">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="toolbar" aria-label="Gallery search">
+      <label class="search-wrap">
+        <span class="sr-only">Search items</span>
+        <input id="searchInput" type="search" placeholder="Search items…" autocomplete="off">
+      </label>
+    </section>
+
+    <section>
+      <div id="gallery" class="gallery" aria-live="polite"></div>
+      <div id="emptyState" class="empty-state" hidden>
+        <h2>No items found</h2>
+        <p>Try a different search.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <p>Listings may change without notice.</p>
+    </div>
+  </footer>
+
+  <dialog id="productDialog" class="product-dialog" aria-labelledby="dialogTitle">
+    <div class="dialog-shell">
+      <button id="closeDialog" class="icon-btn close-btn" type="button" aria-label="Close item details">×</button>
+      <div class="dialog-grid">
+        <section class="viewer" aria-label="Product photos">
+          <div class="main-image-wrap">
+            <button id="prevImage" class="nav-btn nav-prev" type="button" aria-label="Previous image">‹</button>
+            <img id="dialogImage" src="" alt="">
+            <button id="nextImage" class="nav-btn nav-next" type="button" aria-label="Next image">›</button>
+          </div>
+          <div id="thumbs" class="thumbs" aria-label="Choose photo"></div>
+        </section>
+
+        <section class="product-info">
+          <div class="product-title-row">
+            <div>
+              <p id="dialogStatus" class="status-badge"></p>
+              <h2 id="dialogTitle"></h2>
+            </div>
+            <p id="dialogPrice" class="dialog-price"></p>
+          </div>
+
+          <p id="dialogDescription" class="dialog-description"></p>
+
+          <dl class="details-list">
+            <div>
+              <dt>Condition</dt>
+              <dd id="dialogCondition"></dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="dialogStatusText"></dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <script>const state = {
+  products: [],
+  search: "",
+  activeProduct: null,
+  activeImageIndex: 0
+};
+
+const gallery = document.getElementById("gallery");
+const emptyState = document.getElementById("emptyState");
+const itemCount = document.getElementById("itemCount");
+const searchInput = document.getElementById("searchInput");
+
+// THEME CHANGE: controls and persisted preference.
+const themeToggle = document.getElementById("themeToggle");
+const themeIcon = document.getElementById("themeIcon");
+const themeLabel = document.getElementById("themeLabel");
+const THEME_KEY = "sale-gallery-theme";
+const themeStorage = (() => {
+  try {
+    const testKey = "__theme_test__";
+    localStorage.setItem(testKey, "1");
+    localStorage.removeItem(testKey);
+    return localStorage;
+  } catch {
+    const memory = {};
+    return {
+      getItem: key => memory[key] ?? null,
+      setItem: (key, value) => { memory[key] = String(value); }
+    };
+  }
+})();
+
+const dialog = document.getElementById("productDialog");
+const closeDialog = document.getElementById("closeDialog");
+const dialogImage = document.getElementById("dialogImage");
+const dialogTitle = document.getElementById("dialogTitle");
+const dialogPrice = document.getElementById("dialogPrice");
+const dialogDescription = document.getElementById("dialogDescription");
+const dialogCondition = document.getElementById("dialogCondition");
+const dialogStatus = document.getElementById("dialogStatus");
+const dialogStatusText = document.getElementById("dialogStatusText");
+const thumbs = document.getElementById("thumbs");
+const prevImage = document.getElementById("prevImage");
+const nextImage = document.getElementById("nextImage");
+
+
+// THEME CHANGE: apply light/dark mode without changing gallery behavior.
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+  themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  themeIcon.textContent = isDark ? "☀" : "☾";
+  themeLabel.textContent = isDark ? "Light" : "Dark";
+}
+
+function initTheme() {
+  const savedTheme = themeStorage.getItem(THEME_KEY);
+  applyTheme(savedTheme === "dark" ? "dark" : "light");
+}
+
+themeToggle.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  themeStorage.setItem(THEME_KEY, nextTheme);
+  applyTheme(nextTheme);
+});
+
+function normalizeStatus(status) {
+  return String(status || "Available").trim().toLowerCase();
+}
+
+function escapeText(value) {
+  return String(value ?? "");
+}
+
+function statusClass(status) {
+  return `status-${normalizeStatus(status)}`;
+}
+
+function getFilteredProducts() {
+  const query = state.search.trim().toLowerCase();
+
+  return state.products.filter(product => {
+    const haystack = [
+      product.name,
+      product.description,
+      product.condition,
+      product.price,
+      product.status
+    ].join(" ").toLowerCase();
+
+    return !query || haystack.includes(query);
+  });
+}
+
+function renderGallery() {
+  const products = getFilteredProducts();
+  gallery.innerHTML = "";
+
+  products.forEach(product => {
+    const article = document.createElement("article");
+    article.className = "product-card";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "card-button";
+    button.setAttribute("aria-label", `View ${product.name}`);
+
+    const imageCount = Array.isArray(product.images) ? product.images.length : 0;
+    const leadImage = imageCount ? product.images[0] : "images/placeholder.svg";
+
+    button.innerHTML = `
+      <div class="card-image">
+        <img src="${leadImage}" alt="${escapeText(product.name)}" loading="lazy">
+        ${imageCount > 1 ? `<span class="photo-count">${imageCount} photos</span>` : ""}
+      </div>
+      <div class="card-content">
+        <span class="status-badge ${statusClass(product.status)}">${escapeText(product.status)}</span>
+        <div class="card-topline">
+          <h2 class="card-title">${escapeText(product.name)}</h2>
+          <p class="price">${escapeText(product.price)}</p>
+        </div>
+        <p class="card-description">${escapeText(product.description)}</p>
+      </div>
+    `;
+
+    button.addEventListener("click", () => openProduct(product));
+    article.appendChild(button);
+    gallery.appendChild(article);
+  });
+
+  emptyState.hidden = products.length !== 0;
+
+  const visibleCount = products.length;
+  const totalCount = state.products.length;
+  itemCount.textContent =
+    !state.search
+      ? `${totalCount} item${totalCount === 1 ? "" : "s"}`
+      : `${visibleCount} of ${totalCount} items`;
+}
+
+function openProduct(product) {
+  state.activeProduct = product;
+  state.activeImageIndex = 0;
+
+  dialogTitle.textContent = product.name || "";
+  dialogPrice.textContent = product.price || "";
+  dialogDescription.textContent = product.description || "";
+  dialogCondition.textContent = product.condition || "Not specified";
+  dialogStatus.textContent = product.status || "Available";
+  dialogStatus.className = `status-badge ${statusClass(product.status)}`;
+  dialogStatusText.textContent = product.status || "Available";
+
+  renderViewer();
+
+  if (typeof dialog.showModal === "function") {
+    dialog.showModal();
+  } else {
+    dialog.setAttribute("open", "");
+  }
+}
+
+function renderViewer() {
+  const product = state.activeProduct;
+  const images =
+    product && Array.isArray(product.images) && product.images.length
+      ? product.images
+      : ["images/placeholder.svg"];
+
+  state.activeImageIndex =
+    (state.activeImageIndex + images.length) % images.length;
+
+  const current = images[state.activeImageIndex];
+  dialogImage.src = current;
+  dialogImage.alt = `${product.name} photo ${state.activeImageIndex + 1}`;
+
+  prevImage.hidden = images.length <= 1;
+  nextImage.hidden = images.length <= 1;
+
+  thumbs.innerHTML = "";
+
+  images.forEach((src, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `thumb-btn${index === state.activeImageIndex ? " active" : ""}`;
+    button.setAttribute("aria-label", `View photo ${index + 1}`);
+
+    const img = document.createElement("img");
+    img.src = src;
+    img.alt = "";
+    button.appendChild(img);
+
+    button.addEventListener("click", () => {
+      state.activeImageIndex = index;
+      renderViewer();
+    });
+
+    thumbs.appendChild(button);
+  });
+}
+
+function changeImage(delta) {
+  if (!state.activeProduct) return;
+  state.activeImageIndex += delta;
+  renderViewer();
+}
+
+searchInput.addEventListener("input", () => {
+  state.search = searchInput.value;
+  renderGallery();
+});
+
+closeDialog.addEventListener("click", () => dialog.close());
+prevImage.addEventListener("click", () => changeImage(-1));
+nextImage.addEventListener("click", () => changeImage(1));
+
+dialog.addEventListener("click", event => {
+  if (event.target === dialog) dialog.close();
+});
+
+document.addEventListener("keydown", event => {
+  if (!dialog.open) return;
+  if (event.key === "ArrowLeft") changeImage(-1);
+  if (event.key === "ArrowRight") changeImage(1);
+});
+
+async function init() {
+  const data = [{"id": "seiko-prospex", "name": "Seiko Prospex Dive Watch", "price": "$275", "description": "Excellent condition. Includes the original box and papers. Light signs of normal wear only.", "condition": "Excellent", "status": "Available", "images": ["data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNlY2VmZjMiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPlNlaWtvIFByb3NwZXg8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI1MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjMyIiBmaWxsPSIjNmM3MjgwIj5Gcm9udCB2aWV3PC90ZXh0PgogIDx0ZXh0IHg9IjYwMCIgeT0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzlhYTFhZCI+UmVwbGFjZSB0aGlzIHNhbXBsZSBpbWFnZSB3aXRoIHlvdXIgb3duIHBob3RvPC90ZXh0Pgo8L3N2Zz4=", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNmMWYzZjUiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPlNlaWtvIFByb3NwZXg8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI1MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjMyIiBmaWxsPSIjNmM3MjgwIj5EZXRhaWwgdmlldzwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5YWExYWQiPlJlcGxhY2UgdGhpcyBzYW1wbGUgaW1hZ2Ugd2l0aCB5b3VyIG93biBwaG90bzwvdGV4dD4KPC9zdmc+", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNlOGVjZjEiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPlNlaWtvIFByb3NwZXg8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI1MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjMyIiBmaWxsPSIjNmM3MjgwIj5Cb3ggJiBwYXBlcnM8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOWFhMWFkIj5SZXBsYWNlIHRoaXMgc2FtcGxlIGltYWdlIHdpdGggeW91ciBvd24gcGhvdG88L3RleHQ+Cjwvc3ZnPg=="]}, {"id": "makita-drill", "name": "Makita Cordless Drill", "price": "$90", "description": "Barely used. Includes battery and charger. Works perfectly.", "condition": "Very good", "status": "Pending", "images": ["data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNlY2VmZjMiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPk1ha2l0YSBEcmlsbDwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjUwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IiM2YzcyODAiPk1haW4gdmlldzwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5YWExYWQiPlJlcGxhY2UgdGhpcyBzYW1wbGUgaW1hZ2Ugd2l0aCB5b3VyIG93biBwaG90bzwvdGV4dD4KPC9zdmc+", "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNlZWYxZjQiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPk1ha2l0YSBEcmlsbDwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjUwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IiM2YzcyODAiPktpdCAmIGNoYXJnZXI8L3RleHQ+CiAgPHRleHQgeD0iNjAwIiB5PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgSGVsdmV0aWNhLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSIjOWFhMWFkIj5SZXBsYWNlIHRoaXMgc2FtcGxlIGltYWdlIHdpdGggeW91ciBvd24gcGhvdG88L3RleHQ+Cjwvc3ZnPg=="]}, {"id": "office-chair", "name": "Modern Office Chair", "price": "$125", "description": "Clean, comfortable office chair with adjustable height and arm rests.", "condition": "Good", "status": "Sold", "images": ["data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDEyMDAgOTAwIj4KICA8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI5MDAiIGZpbGw9IiNlZWYwZjIiLz4KICA8cmVjdCB4PSIxMjAiIHk9IjEyMCIgd2lkdGg9Ijk2MCIgaGVpZ2h0PSI2NjAiIHJ4PSI0OCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZGZlM2U4IiBzdHJva2Utd2lkdGg9IjQiLz4KICA8dGV4dCB4PSI2MDAiIHk9IjQyMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNjE4MWQiPk9mZmljZSBDaGFpcjwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjUwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzIiIGZpbGw9IiM2YzcyODAiPk1haW4gdmlldzwvdGV4dD4KICA8dGV4dCB4PSI2MDAiIHk9IjcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBIZWx2ZXRpY2EsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5YWExYWQiPlJlcGxhY2UgdGhpcyBzYW1wbGUgaW1hZ2Ugd2l0aCB5b3VyIG93biBwaG90bzwvdGV4dD4KPC9zdmc+"]}];
+  state.products = Array.isArray(data) ? data : [];
+  renderGallery();
+}
+
+initTheme();
+init();
+</script>
+</body>
+</html>
