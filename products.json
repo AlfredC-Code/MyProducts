@@ -20,5 +20,16 @@
     "images": [
       "images/Tag-Black-Green.jpg"
     ]
+  },
+      {
+    "id": "CK",
+    "name": "Custom keychain",
+    "price": "USD 4",
+    "description": "Max letter count: 10.",
+    "condition": "NEW - - multiple colors available",
+    "status": "Available",
+    "images": [
+      "images/customKeyChain.jpg"
+    ]
   }
 ]
