@@ -34,5 +34,15 @@
     "images": [
       "images/chair-main.svg"
     ]
+  },
+    {
+    "id": "Tag",
+    "name": "Multi-purpose tag",
+    "price": "$2",
+    "description": "Amazing tag to rep your gear.",
+    "status": "Available",
+    "images": [
+      "images/Tag-Black-Green.jpg"
+    ]
   }
 ]
