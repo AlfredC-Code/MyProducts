@@ -1,15 +1,13 @@
 [
   {
-    "id": "seiko-prospex",
-    "name": "Seiko Prospex Dive Watch",
-    "price": "$275",
-    "description": "Excellent condition. Includes the original box and papers. Light signs of normal wear only.",
-    "condition": "Excellent",
+    "id": "kaw-1",
+    "name": "Dope KAW",
+    "price": "contact me",
+    "description": "An amazing KAW figure you can put anywhere",
+    "condition": "NEW",
     "status": "Available",
     "images": [
-      "images/watch-front.svg",
-      "images/watch-detail.svg",
-      "images/watch-box.svg"
+      "images/KAWs-Figure.jpg"
     ]
   },
   {
