@@ -10,29 +10,6 @@
       "images/KAWs-Figure.jpg"
     ]
   },
-  {
-    "id": "makita-drill",
-    "name": "Makita Cordless Drill",
-    "price": "$90",
-    "description": "Barely used. Includes battery and charger. Works perfectly.",
-    "condition": "Very good",
-    "status": "Pending",
-    "images": [
-      "images/drill-main.svg",
-      "images/drill-kit.svg"
-    ]
-  },
-  {
-    "id": "office-chair",
-    "name": "Modern Office Chair",
-    "price": "$125",
-    "description": "Clean, comfortable office chair with adjustable height and arm rests.",
-    "condition": "Good",
-    "status": "Sold",
-    "images": [
-      "images/chair-main.svg"
-    ]
-  },
     {
     "id": "Tag",
     "name": "Multi-purpose tag",
