@@ -31,5 +31,16 @@
     "images": [
       "images/customKeyChain.jpg"
     ]
-  }
+  },
+      {
+    "id": "OR",
+    "name": "Oreooo Snack",
+    "price": "USD 4",
+    "description": "Amazing cookies.",
+    "condition": "NEW",
+    "status": "Available",
+    "images": [
+      "images/Oreos.jpg"
+    ]
+  },
 ]
